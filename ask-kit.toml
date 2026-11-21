@@ -1,0 +1,17 @@
+id = "temet.docker"
+name = "docker"
+version = "0.1.0"
+min_ask_kit = "0.2.0"
+requires = ["docker"]
+says = "Docker on this machine: which containers run, are unhealthy or keep restarting, why a container fails (exit code, OOM, error lines in its logs), what a compose project holds, which ports are published and by what, what uses disk (images, volumes, build cache), running a command in a container (psql); and acting on it (restart, stop, start, compose up and down, prune)"
+keywords = ["docker", "containers?", "compose", "images?", "volumes?", "unhealthy", "restarting", "OOM", "docker logs", "published ports?", "build cache", "postgres container"]
+route_hint = "Container state, container logs, compose projects, docker disk use and docker ports are docker; a service managed by systemd is ops; the code or compose file itself is code"
+cite = "the container name, the port, the compose project, or the log line with its timestamp"
+instructions = "instructions.md"
+acts = ["docker restart", "docker stop", "docker start", "docker rm", "docker compose up", "docker compose down", "docker system prune", "docker exec"]
+
+[[sources]]
+kind = "module"
+name = "docker"
+module = "docker.mjs"
+api = "api.d.ts"

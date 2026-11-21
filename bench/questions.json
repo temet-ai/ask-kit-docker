@@ -1,0 +1,40 @@
+{
+  "about": "The kinds of question agents answer by hand with docker: which container holds a port, which are unhealthy or restarting, what a container's logs say, what uses disk, which compose project a container belongs to. The patterns check the shape of an answer, so they run on any machine with Docker; add questions that name your own containers.",
+  "questions": [
+    {
+      "id": "port-holder",
+      "q": "Which container publishes host port 5432, if any, and is it healthy?",
+      "expect": ["5432|no container|nothing"]
+    },
+    {
+      "id": "running",
+      "q": "Which containers are running right now, and are any unhealthy or restarting?",
+      "expect": ["running|no containers|none"]
+    },
+    {
+      "id": "log-errors",
+      "q": "Pick one running container and say whether its logs over the last day contain ERROR or FATAL lines. Quote them if so.",
+      "expect": ["ERROR|FATAL|no (error|matching)|none"]
+    },
+    {
+      "id": "disk",
+      "q": "How much disk is docker using, which part is biggest and how much of it can be reclaimed?",
+      "expect": ["images?|volumes?|build cache", "\\d+(\\.\\d+)?\\s?(B|kB|MB|GB)", "reclaim"]
+    },
+    {
+      "id": "compose",
+      "q": "Which compose projects exist on this machine, and which services does each hold?",
+      "expect": ["compose|project|no compose|none"]
+    },
+    {
+      "id": "containers-shot",
+      "do": "containers",
+      "expect": ["containers|\\[\\]"]
+    },
+    {
+      "id": "disk-shot",
+      "do": "disk",
+      "expect": ["images?", "reclaim"]
+    }
+  ]
+}

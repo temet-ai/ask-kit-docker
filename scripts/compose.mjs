@@ -9,8 +9,7 @@ export const meta = {
 export default async function ({ docker }, { project }) {
   const [projects, rows] = await Promise.all([docker.json("compose", "ls", "--all", "--format", "json"), docker.ps()]);
   const want = (n) => !project || n.toLowerCase().includes(String(project).toLowerCase());
-  const out = [];
-  for (const p of projects.filter((p) => want(p.Name))) {
+  const out = await Promise.all(projects.filter((p) => want(p.Name)).map(async (p) => {
     const cs = rows.filter((r) => r.project === p.Name);
     let workingDir = null;
     if (cs[0]) {
@@ -18,13 +17,13 @@ export default async function ({ docker }, { project }) {
         workingDir = (await docker.inspect(cs[0].name)).labels?.["com.docker.compose.project.working_dir"] ?? null;
       } catch {}
     }
-    out.push({
+    return {
       name: p.Name,
       status: p.Status,
       configFiles: String(p.ConfigFiles ?? "").split(",").filter(Boolean),
       workingDir,
       services: cs.map((c) => ({ service: c.service, container: c.name, state: c.state, status: c.status, health: c.health, ports: c.ports || null, image: c.image })),
-    });
-  }
+    };
+  }));
   return { projects: out, note: out.length ? null : `no compose project matches ${project ?? ""}; have: ${projects.map((p) => p.Name).join(", ")}` };
 }

@@ -13,13 +13,12 @@ export const meta = {
 export default async function ({ docker }, { all = true, name }) {
   let rows = await docker.ps({ all });
   if (name) rows = rows.filter((r) => [r.name, r.image, r.project].some((x) => x?.toLowerCase().includes(String(name).toLowerCase())));
-  const out = [];
-  for (const r of rows) {
+  const out = await Promise.all(rows.map(async (r) => {
     let i = null;
     try {
       i = await docker.inspect(r.name);
     } catch {}
-    out.push({
+    return {
       name: r.name,
       image: r.image,
       state: r.state,
@@ -31,8 +30,8 @@ export default async function ({ docker }, { all = true, name }) {
       project: r.project,
       service: r.service,
       ...(r.state !== "running" ? { exitCode: i?.state?.ExitCode, oomKilled: i?.state?.OOMKilled, finishedAt: i?.state?.FinishedAt?.slice(0, 19) } : {}),
-    });
-  }
+    };
+  }));
   return {
     running: out.filter((r) => r.state === "running").length,
     stopped: out.filter((r) => r.state !== "running").length,

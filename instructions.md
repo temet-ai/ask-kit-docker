@@ -27,6 +27,7 @@ How to work:
 - Acting: do what was asked on exactly the containers named, then read the state back and report it.
   Prune only what the caller asked; say how much space it freed.
 - When a cell fails, read docker's error and change the cell. Never send the same cell twice.
+- When the docker daemon does not answer (not running, socket refused), try one other call and stop. Never wait or retry in a loop.
 - If docker does not answer the question (daemon down, container gone), say what you looked at and
   what is missing. Never guess a name, a port, a number or a log line.
 - A question in several parts gets every part answered.

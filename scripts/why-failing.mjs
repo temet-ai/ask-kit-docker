@@ -19,14 +19,11 @@ export default async function ({ docker }, { name, lines = 20, since }) {
   const all = await docker.ps();
   const hit = all.find((r) => r.name === name || r.id === name) ?? all.filter((r) => r.name.includes(name))[0];
   if (!hit) return { container: null, verdict: `no container matches "${name}"; have: ${all.map((r) => r.name).join(", ")}` };
-  const i = await docker.inspect(hit.name);
+  const [i, log] = await Promise.all([
+    docker.inspect(hit.name),
+    docker.logs(hit.name, { tail: 400, ...(since ? { since } : {}) }).catch((e) => ({ lines: [`(logs not available: ${e.message.slice(0, 150)})`] })),
+  ]);
   const s = i.state ?? {};
-  let log = { lines: [] };
-  try {
-    log = await docker.logs(hit.name, { tail: 400, ...(since ? { since } : {}) });
-  } catch (e) {
-    log = { lines: [`(logs not available: ${e.message.slice(0, 150)})`] };
-  }
   const errors = [...new Set(log.lines.filter((l) => ERR.test(l)).map((l) => l.slice(0, 300)))].slice(-lines);
   const h = s.Health;
   const verdict = s.OOMKilled

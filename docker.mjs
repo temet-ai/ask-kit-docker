@@ -157,7 +157,7 @@ export function makeDocker({ cwd, push }) {
 
     /** `docker system df -v` as {summary:[{Type, TotalCount, Active, Size, Reclaimable}], Images, Containers, Volumes, BuildCache} (docker's own field names, sizes as text like "1.3GB"). Throws on failure. */
     async df() {
-      const [summary, full] = [await json("system", "df", "--format", "json"), await json("system", "df", "-v", "--format", "json")];
+      const [summary, full] = await Promise.all([json("system", "df", "--format", "json"), json("system", "df", "-v", "--format", "json")]);
       return { summary, ...full[0] };
     },
 
